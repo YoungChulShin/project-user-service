@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:5.7.32
+    container_name: myservice-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+    command: mysqld --skip-ssl --character_set_server=utf8mb4 --lower_case_table_names=1
