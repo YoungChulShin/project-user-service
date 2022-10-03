@@ -18,5 +18,5 @@ abstract class BaseEntity {
 
     @Column(name = "updated_at")
     @LastModifiedDate
-    var updatedat: Instant? = null
+    var updatedAt: Instant? = null
 }
