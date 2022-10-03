@@ -4,7 +4,7 @@ abstract class BaseException : RuntimeException {
 
     val errorCode: ErrorCode
 
-    constructor(errorCode: ErrorCode) {
+    constructor(errorCode: ErrorCode) : super(errorCode.errorMessage) {
         this.errorCode = errorCode
     }
 
