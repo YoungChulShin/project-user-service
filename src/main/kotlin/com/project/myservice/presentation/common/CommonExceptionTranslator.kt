@@ -24,7 +24,7 @@ class CommonExceptionTranslator {
         } ?: ErrorCode.COMMON_INVALID_PARAMETER.errorMessage
         logger.warn(errorMessage, e)
 
-        return CommonResponse.fail(errorMessage, ErrorCode.COMMON_INVALID_PARAMETER.name)
+        return CommonResponse.fail(ErrorCode.COMMON_INVALID_PARAMETER.name, errorMessage)
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -32,7 +32,7 @@ class CommonExceptionTranslator {
     fun onBaseException(e: BaseException): CommonResponse<Void> {
         logger.warn(e.message, e)
 
-        return CommonResponse.fail(e.message ?: e.errorCode.errorMessage, e.errorCode.name)
+        return CommonResponse.fail(e.errorCode.name, e.message ?: e.errorCode.errorMessage)
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
