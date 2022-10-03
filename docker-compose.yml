@@ -10,3 +10,9 @@ services:
     volumes:
       - ./mysql:/docker-entrypoint-initdb.d
     command: mysqld --skip-ssl --character_set_server=utf8mb4 --lower_case_table_names=1
+
+  redis:
+    image: redis:7.0.5
+    container_name: myservice-redis
+    ports:
+      - "6379:6379"
