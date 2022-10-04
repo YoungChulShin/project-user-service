@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
+    kotlin("kapt") version "1.6.21"
 }
 
 group = "com.project"
@@ -30,13 +31,23 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+    implementation("com.querydsl:querydsl-jpa")
+    kapt(group = "com.querydsl", name = "querydsl-apt", classifier = "jpa")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
+
     runtimeOnly("mysql:mysql-connector-java")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 allOpen {
     annotations("javax.persistence.Entity", "javax.persistence.MappedSuperclass")
+}
+
+val querydslDir = "$buildDir/generated/source/kapt/main"
+sourceSets.main {
+    setBuildDir(querydslDir)
 }
 
 tasks.withType<KotlinCompile> {

@@ -31,6 +31,8 @@ class SecurityConfig {
             .permitAll()
             .antMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/reset-password")
             .permitAll()
+            .antMatchers(HttpMethod.GET, "/api/v1/users/**")
+            .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
             .anyRequest()
             .authenticated()
         http.addFilter(customAuthenticationFilter)

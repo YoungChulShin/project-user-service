@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository
 @Repository
 class DefaultUserRepository(
     val jpaUserRepository: JpaUserRepository,
+    val jpaUserQueryRepository: JpaUserQueryRepository,
 ) : UserRepository {
 
     override fun save(user: User) = jpaUserRepository.save(user)
@@ -17,4 +18,6 @@ class DefaultUserRepository(
 
     override fun findByPhoneNumber(phoneNumber: String) =
         jpaUserRepository.findByPhoneNumber(phoneNumber)
+
+    override fun findDetail(username: String) = jpaUserQueryRepository.findDetail(username)
 }

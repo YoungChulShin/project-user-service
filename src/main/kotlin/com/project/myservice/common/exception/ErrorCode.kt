@@ -5,6 +5,7 @@ enum class ErrorCode(
 ) {
     COMMON_SYSTEM_ERROR("시스템에서 오류가 발생했습니다"),
     COMMON_INVALID_PARAMETER("요청한 값이 올바르지 않습니다"),
+    COMMON_INVALID_TOKEN("토큰 정보가 올바르지 않습니다"),
 
     USER_ALREADY_EXISTS("회원정보가 존재합니다"),
     USER_NOT_FOUND("회원정보를 찾을 수 없습니다"),

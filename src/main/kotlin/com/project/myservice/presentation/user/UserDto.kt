@@ -3,6 +3,7 @@ package com.project.myservice.presentation.user
 import com.project.myservice.application.user.CreateUserCommand
 import com.project.myservice.application.user.ResetPasswordCommand
 import com.project.myservice.common.util.toLocalString
+import com.project.myservice.domain.user.UserDetailInfo
 import com.project.myservice.domain.user.UserInfo
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
@@ -83,9 +84,10 @@ data class ResetPasswordRequestDto(
 
 data class UserInfoDto(
     val id: Long,
+    val username: String,
     val email: String,
     val phoneNumber: String,
-    val username: String,
+    val name: String,
     val nickname: String,
     val createdAt: String,
     val updatedAt: String?,
@@ -95,13 +97,44 @@ data class UserInfoDto(
         fun of(userInfo: UserInfo): UserInfoDto {
             return UserInfoDto(
                 id = userInfo.id,
+                username = userInfo.username,
                 email = userInfo.email,
                 phoneNumber = userInfo.phoneNumber,
-                username = userInfo.username,
+                name = userInfo.name,
                 nickname = userInfo.nickname,
                 createdAt = userInfo.createdAt.toLocalString(),
                 updatedAt = userInfo.updatedAt?.toLocalString(),
                 deletedAt = userInfo.deletedAt?.toLocalString()
+            )
+        }
+    }
+}
+
+data class UserDetailInfoDto(
+    val id: Long,
+    val username: String,
+    val email: String,
+    val phoneNumber: String,
+    val name: String,
+    val nickname: String,
+    val roles: List<String>,
+    val createdAt: String,
+    val updatedAt: String?,
+    val deletedAt: String?,
+) {
+    companion object {
+        fun of(userDetailInfo: UserDetailInfo): UserDetailInfoDto {
+            return UserDetailInfoDto(
+                id = userDetailInfo.id,
+                username = userDetailInfo.username,
+                email = userDetailInfo.email,
+                phoneNumber = userDetailInfo.phoneNumber,
+                name = userDetailInfo.name,
+                nickname = userDetailInfo.nickname,
+                roles = userDetailInfo.roles,
+                createdAt = userDetailInfo.createdAt.toLocalString(),
+                updatedAt = userDetailInfo.updatedAt?.toLocalString(),
+                deletedAt = userDetailInfo.deletedAt?.toLocalString()
             )
         }
     }

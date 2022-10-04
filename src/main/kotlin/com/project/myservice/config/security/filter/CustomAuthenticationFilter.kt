@@ -2,6 +2,7 @@ package com.project.myservice.config.security.filter
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.project.myservice.config.security.token.TokenManager
+import com.project.myservice.presentation.common.CommonResponse
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -47,11 +48,10 @@ class CustomAuthenticationFilter(
             iss = request?.requestURI.toString(),
             roles = user.authorities.map { it.authority }.toList()
         )
-        val tokens: Map<String, String> = mapOf("access_token" to tokenInfo.accessToken)
 
         response?.let {
             it.contentType = MediaType.APPLICATION_JSON_VALUE
-            ObjectMapper().writeValue(it.outputStream, tokens)
+            ObjectMapper().writeValue(it.outputStream, CommonResponse.success(tokenInfo))
         }
     }
 }
