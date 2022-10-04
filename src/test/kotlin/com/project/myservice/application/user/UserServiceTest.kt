@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 internal class UserServiceTest {
 
@@ -21,6 +22,7 @@ internal class UserServiceTest {
     @DisplayName("회원 정보를 생성할 때")
     inner class CreateUser {
 
+        private val passwordEncoder = BCryptPasswordEncoder()
         private lateinit var authenticationManagerMock: UserAuthenticationManager
         private lateinit var userRepository: LocalUserRepository
         private lateinit var roleRepository: LocalRoleRepository
@@ -33,13 +35,13 @@ internal class UserServiceTest {
             userRepository = LocalUserRepository()
             roleRepository = LocalRoleRepository()
             eventPublisher = LocalEventPublisher()
-            sut = UserService(authenticationManagerMock, userRepository, roleRepository, eventPublisher)
+            sut = UserService(authenticationManagerMock, passwordEncoder, userRepository, roleRepository, eventPublisher)
 
             roleRepository.save(Role.create(RoleType.ROLE_USER))
         }
 
         @Test
-        fun `동일한 아이디가 있으면 에러`() {
+        fun `동일한 아이디가 있으면 에러가 발생한다`() {
             // given
             val command = createDummyCommand()
             val user =  User(
@@ -64,7 +66,7 @@ internal class UserServiceTest {
         }
 
         @Test
-        fun `동일한 이메일이 있으면 에러`() {
+        fun `동일한 이메일이 있으면 에러가 발생한다`() {
             // given
             val command = createDummyCommand()
             val user =  User(
@@ -89,7 +91,7 @@ internal class UserServiceTest {
         }
 
         @Test
-        fun `동일한 연락처가 있으면 에러`() {
+        fun `동일한 연락처가 있으면 에러가 발생한다`() {
             // given
             val command = createDummyCommand()
             val user =  User(
@@ -159,6 +161,20 @@ internal class UserServiceTest {
             Assertions.assertThat(userInfo.phoneNumber).isEqualTo("01011112222")
             Assertions.assertThat(userInfo.name).isEqualTo("testname")
             Assertions.assertThat(userInfo.nickname).isEqualTo("testnickname")
+        }
+
+        @Test
+        fun `비밀번호를 암호화해서 저장한다`() {
+            // given
+            val command = createDummyCommand()
+            val userInfo = sut.createUser(command)
+
+            // when
+            val findUser = userRepository.findByUsername(userInfo.username)
+
+            // then
+            Assertions.assertThat(findUser).isNotNull
+            Assertions.assertThat(findUser!!.password).isNotEqualTo(command.password)
         }
 
         private fun createDummyCommand() = CreateUserCommand(
