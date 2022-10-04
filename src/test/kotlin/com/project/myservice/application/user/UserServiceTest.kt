@@ -303,4 +303,76 @@ internal class UserServiceTest {
             Assertions.assertThat((eventPublisher.data[0] as UserPasswordResetEvent).userInfo.username).isEqualTo("testusername")
         }
     }
+
+    @Nested
+    @DisplayName("회원 상세 정보를 호출할 때")
+    inner class FindUserDetail {
+
+        private val passwordEncoder = BCryptPasswordEncoder()
+        private lateinit var authenticationManagerMock: UserAuthenticationManager
+        private lateinit var userRepository: LocalUserRepository
+        private lateinit var roleRepository: LocalRoleRepository
+        private lateinit var eventPublisher: LocalEventPublisher
+        private lateinit var sut: UserService
+
+        @BeforeEach
+        fun setup() {
+            authenticationManagerMock = Mockito.mock(UserAuthenticationManager::class.java)
+            roleRepository = LocalRoleRepository()
+            userRepository = LocalUserRepository(roleRepository)
+            eventPublisher = LocalEventPublisher()
+            sut = UserService(authenticationManagerMock, passwordEncoder, userRepository, roleRepository, eventPublisher)
+
+            roleRepository.save(Role.create(RoleType.ROLE_USER))
+        }
+
+        @Test
+        fun `사용자 정보가 없으면 에러가 발생한다`() {
+            // given
+            val username = "testusername"
+
+            // when
+            val thrown = catchThrowable { sut.findUserDetail(username) }
+
+            // then
+            Assertions.assertThat(thrown).isNotNull
+            Assertions.assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+            Assertions.assertThat((thrown as BaseException).message).isEqualTo("회원정보를 찾을 수 없습니다")
+            Assertions.assertThat((thrown as BaseException).errorCode).isEqualTo(ErrorCode.USER_NOT_FOUND)
+        }
+
+        @Test
+        fun `사용자 상세 정보를 리턴한다`() {
+            // given
+            roleRepository.save(Role.create(RoleType.ROLE_ADMIN))
+            roleRepository.save(Role.create(RoleType.ROLE_USER))
+            val userRole = roleRepository.find(RoleType.ROLE_USER)
+
+            val username = "testusername"
+            val user =  User(
+                username,
+                "test@test.com",
+                "01011112222",
+                "testpassword",
+                "testname",
+                "testnickname",
+                userRole?.id!!
+            )
+
+            userRepository.save(user)
+
+            // when
+            val userDetailInfo = sut.findUserDetail(username)
+
+            // then
+            Assertions.assertThat(userDetailInfo).isNotNull
+            Assertions.assertThat(userDetailInfo.username).isEqualTo(username)
+            Assertions.assertThat(userDetailInfo.email).isEqualTo("test@test.com")
+            Assertions.assertThat(userDetailInfo.phoneNumber).isEqualTo("01011112222")
+            Assertions.assertThat(userDetailInfo.name).isEqualTo("testname")
+            Assertions.assertThat(userDetailInfo.nickname).isEqualTo("testnickname")
+            Assertions.assertThat(userDetailInfo.roles.size).isEqualTo(1)
+            Assertions.assertThat(userDetailInfo.roles[0]).isEqualTo("ROLE_USER")
+        }
+    }
 }

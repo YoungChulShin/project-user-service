@@ -70,4 +70,8 @@ class UserService(
             UserPasswordResetEvent(UserInfo.of(user), command.newPassword)
         )
     }
+
+    @Transactional(readOnly = true)
+    fun findUserDetail(username: String) =
+        userRepository.findDetail(username) ?: throw UserNotFoundException()
 }
