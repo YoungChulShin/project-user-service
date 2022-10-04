@@ -73,6 +73,28 @@ internal class UserTest {
         // then
         Assertions.assertThat(user.roleIds.size).isEqualTo(2)
         Assertions.assertThat(user.roleIds.containsAll(listOf(1L, 2L))).isTrue
-
     }
+
+    @Test
+    fun `비밀번호를 초기화할 수 있다`() {
+        // given
+        val username = "testusername"
+        val email = "test@myservice.com"
+        val phoneNumber = "01011112222"
+        val password = "testpassword"
+        val name = "myname"
+        val nickname = "mynickname"
+        val roleId = 1L
+
+        val user = User(username, email, phoneNumber, password, name, nickname, roleId)
+
+        val newPassword= "newpassword"
+
+        // when
+        user.resetPassword(newPassword)
+
+        // then
+        Assertions.assertThat(user.password).isEqualTo(newPassword)
+    }
+
 }

@@ -55,6 +55,11 @@ class User(
         this.roleIds.add(roleId)
     }
 
+    fun resetPassword(newPassword: String) {
+        // 비밀번호 초기화는 이전 비밀번호와 비교하지 않는다
+        this.password = newPassword
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
