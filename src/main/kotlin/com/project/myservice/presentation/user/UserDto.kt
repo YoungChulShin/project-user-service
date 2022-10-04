@@ -1,6 +1,7 @@
 package com.project.myservice.presentation.user
 
 import com.project.myservice.application.user.CreateUserCommand
+import com.project.myservice.application.user.ResetPasswordCommand
 import com.project.myservice.common.util.toLocalString
 import com.project.myservice.domain.user.UserInfo
 import javax.validation.constraints.Email
@@ -50,6 +51,31 @@ data class CreateUserRequestDto(
             password = password!!,
             name = name!!,
             nickname = nickname!!,
+            authenticationNumber = authenticationNumber!!
+        )
+    }
+}
+
+data class ResetPasswordRequestDto(
+    @field:NotBlank(message = "전화번호는 공백일 수 없습니다")
+    @field:Pattern(regexp = "[0-9]{10,11}", message = "전화번호는 10~11자리 숫자만 입력 가능합니다")
+    val phoneNumber: String?,
+
+    @field:NotBlank(message = "비밀번호는 공백일 수 없습니다")
+    @field:Pattern(
+        regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~\$^+=<>]).{8,20}$",
+        message = "비밀번호는 8~20자리이고, 최소한 하나의 숫자,소문자,대문자,특수문자를 포함해야합니다"
+    )
+    val newPassword: String?,
+
+    @field:NotBlank(message = "인증번호는 공백일 수 없습니다")
+    @field:Pattern(regexp = "[0-9]{4}", message = "인증번호는 4자리 숫자만 입력 가능합니다")
+    val authenticationNumber: String?,
+) {
+    fun toCommand(): ResetPasswordCommand {
+        return ResetPasswordCommand(
+            phoneNumber = phoneNumber!!,
+            newPassword = newPassword!!,
             authenticationNumber = authenticationNumber!!
         )
     }

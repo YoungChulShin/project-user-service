@@ -22,4 +22,13 @@ class UserController(
 
         return CommonResponse.success(UserInfoDto.of(userInfo))
     }
+
+    @PostMapping("/reset-password")
+    fun resetPassword(
+        @RequestBody @Validated request: ResetPasswordRequestDto,
+    ): CommonResponse<Void> {
+        userService.resetPassword(request.toCommand())
+
+        return CommonResponse.success()
+    }
 }
