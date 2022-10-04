@@ -2,8 +2,12 @@ package com.project.myservice.presentation.user
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.project.myservice.application.user.UserService
+import com.project.myservice.common.exception.UserNotFoundException
+import com.project.myservice.common.util.toLocalString
+import com.project.myservice.domain.user.UserDetailInfo
 import com.project.myservice.domain.user.UserInfo
 import com.project.myservice.presentation.common.CommonExceptionTranslator
+import com.sun.security.auth.UserPrincipal
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -14,12 +18,17 @@ import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.Instant
+
 
 internal class UserControllerTest {
 
@@ -666,6 +675,92 @@ internal class UserControllerTest {
 
             Mockito.verify(userServiceMock)
                 .resetPassword(request.toCommand())
+        }
+    }
+
+    @Nested
+    @DisplayName("내 정보 조회를 호출할 때")
+    inner class FindMyApi {
+
+        lateinit var mockMvc: MockMvc
+        lateinit var userServiceMock: UserService
+        private val objectMapper = ObjectMapper()
+
+        @BeforeEach
+        fun setup() {
+            userServiceMock = Mockito.mock(UserService::class.java)
+
+            mockMvc = MockMvcBuilders
+                .standaloneSetup(UserController(userServiceMock))
+                .setControllerAdvice(CommonExceptionTranslator())
+                .build()
+
+            val user: UserDetails = org.springframework.security.core.userdetails.User(
+                "username",
+                "Secret1323!",
+                listOf(SimpleGrantedAuthority("ROLE_USER"))
+            )
+
+            val context = SecurityContextHolder.getContext()
+            context.authentication = UsernamePasswordAuthenticationToken(user, user.password, user.authorities)
+        }
+
+        @Test
+        fun `사용자 정보가 없다면 에러를 응답한다`() {
+            // given
+            val principal = UserPrincipal("testusername")
+
+            Mockito.`when`(userServiceMock.findUserDetail(principal.name))
+                .thenThrow(UserNotFoundException())
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/v1/users/my")
+                    .principal(principal))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("FAIL"))
+                .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("USER_NOT_FOUND"))
+        }
+
+        @Test
+        fun `정보가 올바르다면, 상세 정보를 응답한다`() {
+            // given
+            val principal = UserPrincipal("testusername")
+            val currentTime = Instant.now()
+
+            val userDetailInfo = UserDetailInfo(
+                1L,
+                "testusername",
+                "test@test.com",
+                "01011112222",
+                "testname",
+                "testnickname",
+                listOf("ROLE_USER"),
+                currentTime,
+                currentTime,
+                null
+            )
+
+            Mockito.`when`(userServiceMock.findUserDetail(principal.name))
+                .thenReturn(userDetailInfo)
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/v1/users/my")
+                    .principal(principal))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("SUCCESS"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.username").value("testusername"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.email").value("test@test.com"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.phoneNumber").value("01011112222"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.name").value("testname"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.nickname").value("testnickname"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.roles[0]").value("ROLE_USER"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.createdAt").value(currentTime.toLocalString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.updatedAt").value(currentTime.toLocalString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.deletedAt").value(null))
         }
     }
 }

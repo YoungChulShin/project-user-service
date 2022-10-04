@@ -3,6 +3,7 @@ package com.project.myservice.presentation.user
 import com.project.myservice.application.user.CreateUserCommand
 import com.project.myservice.application.user.ResetPasswordCommand
 import com.project.myservice.common.util.toLocalString
+import com.project.myservice.domain.user.UserDetailInfo
 import com.project.myservice.domain.user.UserInfo
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
@@ -102,6 +103,36 @@ data class UserInfoDto(
                 createdAt = userInfo.createdAt.toLocalString(),
                 updatedAt = userInfo.updatedAt?.toLocalString(),
                 deletedAt = userInfo.deletedAt?.toLocalString()
+            )
+        }
+    }
+}
+
+data class UserDetailInfoDto(
+    val id: Long,
+    val username: String,
+    val email: String,
+    val phoneNumber: String,
+    val name: String,
+    val nickname: String,
+    val roles: List<String>,
+    val createdAt: String,
+    val updatedAt: String?,
+    val deletedAt: String?,
+) {
+    companion object {
+        fun of(userDetailInfo: UserDetailInfo): UserDetailInfoDto {
+            return UserDetailInfoDto(
+                id = userDetailInfo.id,
+                username = userDetailInfo.username,
+                email = userDetailInfo.email,
+                phoneNumber = userDetailInfo.phoneNumber,
+                name = userDetailInfo.name,
+                nickname = userDetailInfo.nickname,
+                roles = userDetailInfo.roles,
+                createdAt = userDetailInfo.createdAt.toLocalString(),
+                updatedAt = userDetailInfo.updatedAt?.toLocalString(),
+                deletedAt = userDetailInfo.deletedAt?.toLocalString()
             )
         }
     }
