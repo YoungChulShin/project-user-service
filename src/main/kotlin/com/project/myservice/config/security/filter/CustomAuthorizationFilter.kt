@@ -1,7 +1,9 @@
 package com.project.myservice.config.security.filter
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.project.myservice.common.exception.ErrorCode
 import com.project.myservice.config.security.token.TokenManager
+import com.project.myservice.presentation.common.CommonResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -50,9 +52,11 @@ class CustomAuthorizationFilter : OncePerRequestFilter() {
                 response.status = HttpStatus.FORBIDDEN.value()
                 response.contentType = MediaType.APPLICATION_JSON_VALUE
                 e.message?.let {
-                    val error = mutableMapOf<String, String>()
-                    error["error_message"] = e.message ?: ""
-                    ObjectMapper().writeValue(response.outputStream, error)
+                    val errorResponse = CommonResponse.fail(
+                        ErrorCode.COMMON_INVALID_TOKEN.name,
+                        e.message ?: ErrorCode.COMMON_INVALID_TOKEN.errorMessage
+                    )
+                    ObjectMapper().writeValue(response.outputStream, errorResponse)
                 }
             }
         } else {

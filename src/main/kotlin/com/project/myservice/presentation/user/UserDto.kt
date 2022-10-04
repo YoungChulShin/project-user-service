@@ -84,9 +84,10 @@ data class ResetPasswordRequestDto(
 
 data class UserInfoDto(
     val id: Long,
+    val username: String,
     val email: String,
     val phoneNumber: String,
-    val username: String,
+    val name: String,
     val nickname: String,
     val createdAt: String,
     val updatedAt: String?,
@@ -96,9 +97,10 @@ data class UserInfoDto(
         fun of(userInfo: UserInfo): UserInfoDto {
             return UserInfoDto(
                 id = userInfo.id,
+                username = userInfo.username,
                 email = userInfo.email,
                 phoneNumber = userInfo.phoneNumber,
-                username = userInfo.username,
+                name = userInfo.name,
                 nickname = userInfo.nickname,
                 createdAt = userInfo.createdAt.toLocalString(),
                 updatedAt = userInfo.updatedAt?.toLocalString(),
