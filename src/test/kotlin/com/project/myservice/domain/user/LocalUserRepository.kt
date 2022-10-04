@@ -3,7 +3,9 @@ package com.project.myservice.domain.user
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
-class LocalUserRepository: UserRepository {
+class LocalUserRepository(
+    val localRoleRepository: LocalRoleRepository? = null
+): UserRepository {
 
     val data = mutableListOf<User>()
     var lastId = AtomicLong(1)
@@ -36,5 +38,26 @@ class LocalUserRepository: UserRepository {
     override fun findByPhoneNumber(phoneNumber: String): User? {
         val findUsers = data.filter { it.phoneNumber == phoneNumber }.toList()
         return if (findUsers.isNotEmpty()) findUsers[0] else null
+    }
+
+    override fun findDetail(username: String): UserDetailInfo? {
+        val findUsers = data.filter { it.username == username }.toList()
+        if (findUsers.isEmpty()) return null
+
+        val findUser = findUsers[0]
+        val userRoles = localRoleRepository?.findByIds(findUser.roleIds)
+
+        return UserDetailInfo(
+            findUser.id!!,
+            findUser.username,
+            findUser.email,
+            findUser.phoneNumber,
+            findUser.name,
+            findUser.nickname,
+            userRoles?.map { it.name }?.toList() ?: listOf(),
+            findUser.createdAt!!,
+            findUser.updatedAt,
+            findUser.deletedAt
+        )
     }
 }

@@ -9,4 +9,6 @@ interface UserRepository {
     fun findByEmail(email: String): User?
 
     fun findByPhoneNumber(phoneNumber: String): User?
+
+    fun findDetail(username: String): UserDetailInfo?
 }
