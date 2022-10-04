@@ -9,3 +9,9 @@ data class CreateUserCommand(
     val nickname: String,
     val authenticationNumber: String,
 )
+
+data class ResetPasswordCommand(
+    val phoneNumber: String,
+    val newPassword: String,
+    val authenticationNumber: String,
+)

@@ -2,10 +2,12 @@ package com.project.myservice.application.user
 
 import com.project.myservice.common.exception.RoleNotFoundException
 import com.project.myservice.common.exception.UserAlreadyExistsException
+import com.project.myservice.common.exception.UserNotFoundException
 import com.project.myservice.domain.user.*
 import com.project.myservice.domain.user.authentication.UserAuthenticationManager
 import com.project.myservice.domain.user.authentication.UserAuthenticationType
 import com.project.myservice.domain.user.event.UserCreatedEvent
+import com.project.myservice.domain.user.event.UserPasswordResetEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -51,5 +53,21 @@ class UserService(
         return userRepository.save(initUser)
             .run { UserInfo.of(this) }
             .also { applicationEventPublisher.publishEvent(UserCreatedEvent(it)) }
+    }
+
+    @Transactional
+    fun resetPassword(command: ResetPasswordCommand) {
+        userAuthenticationManager.checkAuthentication(
+            UserAuthenticationType.RESET_PASSWORD,
+            command.phoneNumber,
+            command.authenticationNumber
+        )
+        val user = userRepository.findByPhoneNumber(command.phoneNumber)
+            ?: throw UserNotFoundException()
+        user.resetPassword(passwordEncoder.encode(command.newPassword))
+
+        applicationEventPublisher.publishEvent(
+            UserPasswordResetEvent(UserInfo.of(user), command.newPassword)
+        )
     }
 }
