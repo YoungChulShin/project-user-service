@@ -240,7 +240,6 @@ internal class UserControllerTest {
 
         @ParameterizedTest
         @NullSource
-        @EmptySource
         fun `비밀번호는 공백일 수 없다`(password: String?) {
             // given
             val request = CreateUserRequestDto(

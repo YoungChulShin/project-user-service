@@ -1,20 +1,22 @@
 package com.project.myservice.application.user
 
+import com.project.myservice.common.exception.RoleNotFoundException
 import com.project.myservice.common.exception.UserAlreadyExistsException
-import com.project.myservice.domain.user.User
-import com.project.myservice.domain.user.UserInfo
-import com.project.myservice.domain.user.UserRepository
+import com.project.myservice.domain.user.*
 import com.project.myservice.domain.user.authentication.UserAuthenticationManager
 import com.project.myservice.domain.user.authentication.UserAuthenticationType
 import com.project.myservice.domain.user.event.UserCreatedEvent
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UserService(
     val userAuthenticationManager: UserAuthenticationManager,
+    val passwordEncoder: PasswordEncoder,
     val userRepository: UserRepository,
+    val roleRepository: RoleRepository,
     val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
@@ -40,9 +42,10 @@ class UserService(
             command.username,
             command.email,
             command.phoneNumber,
-            command.password,
+            passwordEncoder.encode(command.password),
             command.name,
             command.nickname,
+            roleRepository.find(RoleType.ROLE_USER)?.id ?: throw RoleNotFoundException()
         )
 
         return userRepository.save(initUser)

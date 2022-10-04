@@ -13,6 +13,23 @@ FLUSH PRIVILEGES;
 -- DB 선택
 USE myservice;
 
+-- 권한 정보 테이블 생성
+CREATE TABLE IF NOT EXISTS roles
+(
+    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'PK',
+    name       VARCHAR(20)     NOT NULL COMMENT '권한 이름',
+    created_at TIMESTAMP       NOT NULL COMMENT '생성 시간',
+    updated_at TIMESTAMP       NULL COMMENT '마지막 업데이트 시간',
+    PRIMARY KEY (id),
+    UNIQUE idx_role_name (name)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- 권한 정보 초기 데이터 추가
+INSERT IGNORE INTO roles (name, created_at, updated_at)
+SELECT 'ROLE_ADMIN', now(), now();
+INSERT IGNORE INTO roles (name, created_at, updated_at)
+SELECT 'ROLE_USER', now(), now();
+
 -- 회원 정보 테이블 생성
 CREATE TABLE IF NOT EXISTS users
 (
@@ -31,3 +48,11 @@ CREATE TABLE IF NOT EXISTS users
     UNIQUE idx_email (email),
     UNIQUE idx_phone_number (phone_number)
     ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- 회원의 권한 정보 테이블 생성
+CREATE TABLE IF NOT EXISTS user_roles
+(
+    user_id BIGINT UNSIGNED NOT NULL COMMENT '회원 ID',
+    role_id BIGINT UNSIGNED NOT NULL COMMENT '권한 ID',
+    PRIMARY KEY (user_id, role_id)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;

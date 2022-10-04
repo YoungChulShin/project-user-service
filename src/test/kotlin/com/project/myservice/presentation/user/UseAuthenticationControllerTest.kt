@@ -60,7 +60,7 @@ internal class UseAuthenticationControllerTest {
         @Test
         fun `전화번호는 공백일 수 없다`() {
             // given
-            val request = RequestUserAuthenticationRequestDto("CREATE_USER", "")
+            val request = RequestUserAuthenticationRequestDto("CREATE_USER", null)
 
             // when, then
             mockMvc.perform(
@@ -72,7 +72,7 @@ internal class UseAuthenticationControllerTest {
                 .andExpect(jsonPath("result").value("FAIL"))
                 .andExpect(jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
                 .andExpect(jsonPath("message")
-                    .value("요청한 'phoneNumber' 값이 올바르지 않습니다. 입력 값: ''. 전화번호는 공백일 수 없습니다"))
+                    .value("요청한 'phoneNumber' 값이 올바르지 않습니다. 입력 값: 'null'. 전화번호는 공백일 수 없습니다"))
         }
 
         @ParameterizedTest
