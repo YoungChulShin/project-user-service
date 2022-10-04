@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface JpaRoleRepository : JpaRepository<Role, Long> {
 
     fun findByName(name: String): Role?
+
+    fun findByIdIn(idList: List<Long>): List<Role>
 }

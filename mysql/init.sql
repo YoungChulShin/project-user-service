@@ -48,3 +48,11 @@ CREATE TABLE IF NOT EXISTS users
     UNIQUE idx_email (email),
     UNIQUE idx_phone_number (phone_number)
     ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- 회원의 권한 정보 테이블 생성
+CREATE TABLE IF NOT EXISTS user_roles
+(
+    user_id BIGINT UNSIGNED NOT NULL COMMENT '회원 ID',
+    role_id BIGINT UNSIGNED NOT NULL COMMENT '권한 ID',
+    PRIMARY KEY (user_id, role_id)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;

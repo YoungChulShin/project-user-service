@@ -1,6 +1,6 @@
 package com.project.myservice.domain.user
 
-import java.security.InvalidParameterException
+import com.project.myservice.common.exception.InvalidParameterException
 import java.time.Instant
 
 data class UserInfo(

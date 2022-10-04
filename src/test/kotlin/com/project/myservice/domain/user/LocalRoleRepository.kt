@@ -27,4 +27,7 @@ class LocalRoleRepository : RoleRepository {
         val findRoles = data.filter { it.name == type.name }.toList()
         return if (findRoles.isNotEmpty()) findRoles[0] else null
     }
+
+    override fun findByIds(idList: List<Long>) =
+        data.filter { idList.contains(it.id) }.toList()
 }

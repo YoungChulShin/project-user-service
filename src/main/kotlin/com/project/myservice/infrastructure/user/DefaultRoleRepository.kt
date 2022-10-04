@@ -13,4 +13,6 @@ class DefaultRoleRepository(
     override fun save(role: Role) = jpaRoleRepository.save(role)
 
     override fun find(type: RoleType) = jpaRoleRepository.findByName(type.name)
+
+    override fun findByIds(idList: List<Long>) = jpaRoleRepository.findByIdIn(idList)
 }
