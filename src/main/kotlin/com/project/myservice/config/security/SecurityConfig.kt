@@ -27,7 +27,7 @@ class SecurityConfig {
         http.csrf().disable()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http.authorizeHttpRequests()
-            .antMatchers("/api/v1/login/**", "/api/v1/users/authentication/**")
+            .antMatchers("/api/v1/login/**", "/api/v1/users/authentication/**", "/actuator/**")
             .permitAll()
             .antMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/reset-password")
             .permitAll()
