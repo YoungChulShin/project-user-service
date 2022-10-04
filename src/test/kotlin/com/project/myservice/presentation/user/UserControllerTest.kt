@@ -511,4 +511,161 @@ internal class UserControllerTest {
             Mockito.verify(userServiceMock).createUser(request.toCommand())
         }
     }
+
+    @Nested
+    @DisplayName("비밀번호 변경 API를 호출할 때")
+    inner class RequestResetPasswordApi {
+
+        lateinit var mockMvc: MockMvc
+        lateinit var userServiceMock: UserService
+        private val objectMapper = ObjectMapper()
+
+        @BeforeEach
+        fun setup() {
+            userServiceMock = Mockito.mock(UserService::class.java)
+
+            mockMvc = MockMvcBuilders
+                .standaloneSetup(UserController(userServiceMock))
+                .setControllerAdvice(CommonExceptionTranslator())
+                .build()
+        }
+
+        @ParameterizedTest
+        @NullSource
+        fun `전화번호는 공백일 수 없다`(phoneNumber: String?) {
+            // given
+            val request = ResetPasswordRequestDto(phoneNumber, "Secret1323!", "1234")
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/users/reset-password")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("FAIL"))
+                .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("message")
+                        .value("요청한 'phoneNumber' 값이 올바르지 않습니다. 입력 값: '$phoneNumber'. 전화번호는 공백일 수 없습니다"))
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ["010", "010111122223", "0101111222a"])
+        fun `전화번호는 10~11자리 숫자만 입력 가능하다`(phoneNumber: String?) {
+            // given
+            val request = ResetPasswordRequestDto(phoneNumber, "Secret1323!", "1234")
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/users/reset-password")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("FAIL"))
+                .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("message")
+                        .value("요청한 'phoneNumber' 값이 올바르지 않습니다. 입력 값: '$phoneNumber'. 전화번호는 공백일 수 없습니다"))
+        }
+
+        @ParameterizedTest
+        @NullSource
+        fun `비밀번호는 공백일 수 없다`(newPassword: String?) {
+            // given
+            val request = ResetPasswordRequestDto("01011112222", newPassword, "1234")
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/users/reset-password")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("FAIL"))
+                .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("message")
+                        .value("요청한 'newPassword' 값이 올바르지 않습니다. 입력 값: '$newPassword'. 비밀번호는 공백일 수 없습니다"))
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ["7digit0", "21digit00000000000000", "Testpassword01", "Testpassword!#", "testpassword0!#", "TESTPASSWORD0!#"])
+        fun `비밀번호는 8~20자리이고, 최소한 하나의 숫자,소문자,대문자,특수문자를 포함해야한다`(newPassword: String?) {
+            // given
+            val request = ResetPasswordRequestDto("01011112222", newPassword, "1234")
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/users/reset-password")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("FAIL"))
+                .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("message")
+                        .value("요청한 'newPassword' 값이 올바르지 않습니다. 입력 값: '$newPassword'. 비밀번호는 8~20자리이고, 최소한 하나의 숫자,소문자,대문자,특수문자를 포함해야합니다"))
+        }
+
+        @ParameterizedTest
+        @NullSource
+        fun `인증번호는 공백일 수 없다`(authenticationNumber: String?) {
+            // given
+            val request = ResetPasswordRequestDto("01011112222", "Secret1323!", authenticationNumber)
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/users/reset-password")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("FAIL"))
+                .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("message")
+                        .value("요청한 'authenticationNumber' 값이 올바르지 않습니다. 입력 값: '$authenticationNumber'. 인증번호는 공백일 수 없습니다"))
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ["123", "12345", "123a", "123A"])
+        fun `인증번호는 4자리 숫자만 입력 가능하다`(authenticationNumber: String?) {
+            // given
+            val request = ResetPasswordRequestDto("01011112222", "Secret1323!", authenticationNumber)
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/users/reset-password")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("FAIL"))
+                .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("message")
+                        .value("요청한 'authenticationNumber' 값이 올바르지 않습니다. 입력 값: '$authenticationNumber'. 인증번호는 4자리 숫자만 입력 가능합니다"))
+        }
+
+        @Test
+        fun `입력 데이터가 올바르면 ApplicationService를 호출하고, 호출이 완료되면 성공 응답을 반환한다`() {
+            // given
+            val request = ResetPasswordRequestDto("01011112222", "Secret1323!", "1234")
+
+            // when, then
+            mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/users/reset-password")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andDo { MockMvcResultHandlers.print() }
+                .andExpect(MockMvcResultMatchers.jsonPath("result").value("SUCCESS"))
+
+            Mockito.verify(userServiceMock)
+                .resetPassword(request.toCommand())
+        }
+    }
 }

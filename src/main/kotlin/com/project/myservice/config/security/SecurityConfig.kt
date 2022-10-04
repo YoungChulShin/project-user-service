@@ -29,7 +29,7 @@ class SecurityConfig {
         http.authorizeHttpRequests()
             .antMatchers("/api/v1/login/**", "/api/v1/users/authentication/**")
             .permitAll()
-            .antMatchers(HttpMethod.POST, "/api/v1/users")
+            .antMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/reset-password")
             .permitAll()
             .anyRequest()
             .authenticated()
