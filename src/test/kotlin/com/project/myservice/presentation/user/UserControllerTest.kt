@@ -567,7 +567,7 @@ internal class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("errorCode").value("COMMON_INVALID_PARAMETER"))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("message")
-                        .value("요청한 'phoneNumber' 값이 올바르지 않습니다. 입력 값: '$phoneNumber'. 전화번호는 공백일 수 없습니다"))
+                        .value("요청한 'phoneNumber' 값이 올바르지 않습니다. 입력 값: '$phoneNumber'. 전화번호는 10~11자리 숫자만 입력 가능합니다"))
         }
 
         @ParameterizedTest
