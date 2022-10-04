@@ -1,9 +1,8 @@
 package com.project.myservice.application.user
 
+import com.project.myservice.common.exception.RoleNotFoundException
 import com.project.myservice.common.exception.UserAlreadyExistsException
-import com.project.myservice.domain.user.User
-import com.project.myservice.domain.user.UserInfo
-import com.project.myservice.domain.user.UserRepository
+import com.project.myservice.domain.user.*
 import com.project.myservice.domain.user.authentication.UserAuthenticationManager
 import com.project.myservice.domain.user.authentication.UserAuthenticationType
 import com.project.myservice.domain.user.event.UserCreatedEvent
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 class UserService(
     val userAuthenticationManager: UserAuthenticationManager,
     val userRepository: UserRepository,
+    val roleRepository: RoleRepository,
     val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
@@ -43,6 +43,7 @@ class UserService(
             command.password,
             command.name,
             command.nickname,
+            roleRepository.find(RoleType.ROLE_USER)?.id ?: throw RoleNotFoundException()
         )
 
         return userRepository.save(initUser)

@@ -3,8 +3,7 @@ package com.project.myservice.application.user
 import com.project.myservice.common.exception.BaseException
 import com.project.myservice.common.exception.UserAlreadyExistsException
 import com.project.myservice.domain.common.LocalEventPublisher
-import com.project.myservice.domain.user.LocalUserRepository
-import com.project.myservice.domain.user.User
+import com.project.myservice.domain.user.*
 import com.project.myservice.domain.user.authentication.UserAuthenticationManager
 import com.project.myservice.domain.user.authentication.UserAuthenticationType
 import com.project.myservice.domain.user.event.UserCreatedEvent
@@ -24,6 +23,7 @@ internal class UserServiceTest {
 
         private lateinit var authenticationManagerMock: UserAuthenticationManager
         private lateinit var userRepository: LocalUserRepository
+        private lateinit var roleRepository: LocalRoleRepository
         private lateinit var eventPublisher: LocalEventPublisher
         private lateinit var sut: UserService
 
@@ -31,8 +31,11 @@ internal class UserServiceTest {
         fun setup() {
             authenticationManagerMock = Mockito.mock(UserAuthenticationManager::class.java)
             userRepository = LocalUserRepository()
+            roleRepository = LocalRoleRepository()
             eventPublisher = LocalEventPublisher()
-            sut = UserService(authenticationManagerMock, userRepository, eventPublisher)
+            sut = UserService(authenticationManagerMock, userRepository, roleRepository, eventPublisher)
+
+            roleRepository.save(Role.create(RoleType.ROLE_USER))
         }
 
         @Test
@@ -45,7 +48,8 @@ internal class UserServiceTest {
                 "01033334444",
                 "testpassword2",
                 "testname2",
-                "testnickname2"
+                "testnickname2",
+                1L
             )
 
             userRepository.save(user)
@@ -69,7 +73,8 @@ internal class UserServiceTest {
                 "01033334444",
                 "testpassword2",
                 "testname2",
-                "testnickname2"
+                "testnickname2",
+                1L
             )
 
             userRepository.save(user)
@@ -93,7 +98,8 @@ internal class UserServiceTest {
                 "01011112222",
                 "testpassword2",
                 "testname2",
-                "testnickname2"
+                "testnickname2",
+                1L
             )
 
             userRepository.save(user)

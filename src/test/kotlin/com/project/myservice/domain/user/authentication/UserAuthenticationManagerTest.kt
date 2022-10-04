@@ -21,7 +21,7 @@ internal class UserAuthenticationManagerTest {
         fun `사용자 정보가 없어야 하는데, 사용자 정보가 있다면 에러가 발생한다`() {
             // given
             val phoneNumber = "01011112222"
-            val user = User("testusername", "test@test.com", phoneNumber, "testpass", "testuser", "testnick")
+            val user = User("testusername", "test@test.com", phoneNumber, "testpass", "testuser", "testnick", 1L)
             val userRepository = LocalUserRepository()
             val cacheRepository = LocalCacheRepository()
             val notificationSender = LocalNotificationSender()

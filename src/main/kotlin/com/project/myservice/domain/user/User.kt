@@ -29,6 +29,11 @@ class User(
 
     @Column(name = "nickname")
     var nickname: String,
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "role_id")
+    @CollectionTable(name = "user_roles")
+    val roleIds: MutableList<Long> = mutableListOf(),
 ) : BaseEntity() {
 
     constructor(
@@ -38,11 +43,17 @@ class User(
         password: String,
         name: String,
         nickname: String,
-    ) : this(null, username, email, phoneNumber, password, name, nickname)
+        roleId: Long,
+    ) : this(null, username, email, phoneNumber, password, name, nickname, mutableListOf(roleId))
 
     @Column(name = "deleted_at")
     var deletedAt: Instant? = null
 
+    fun addRole(roleId: Long) {
+        if (this.roleIds.contains(roleId)) return
+
+        this.roleIds.add(roleId)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
