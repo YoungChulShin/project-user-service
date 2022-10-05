@@ -6,18 +6,30 @@ import com.project.myservice.common.exception.UserNotFoundException
 import com.project.myservice.common.util.toLocalString
 import com.project.myservice.domain.user.UserDetailInfo
 import com.project.myservice.domain.user.UserInfo
-import com.project.myservice.presentation.common.CommonExceptionTranslator
 import com.sun.security.auth.UserPrincipal
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EmptySource
 import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.restdocs.RestDocumentationContextProvider
+import org.springframework.restdocs.RestDocumentationExtension
+import org.springframework.restdocs.headers.HeaderDocumentation
+import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
+import org.springframework.restdocs.operation.preprocess.Preprocessors
+import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -26,27 +38,32 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
 import java.time.Instant
 
 
 internal class UserControllerTest {
 
     @Nested
+    @WebMvcTest(UserController::class)
+    @ExtendWith(RestDocumentationExtension::class)
     @DisplayName("회원가입 API를 호출할 때")
     inner class RequestCreateUserApi {
 
         lateinit var mockMvc: MockMvc
+
+        @MockBean
         lateinit var userServiceMock: UserService
-        private val objectMapper = ObjectMapper()
+
+        @Autowired
+        lateinit var objectMapper: ObjectMapper
 
         @BeforeEach
-        fun setup() {
-            userServiceMock = Mockito.mock(UserService::class.java)
-
-            mockMvc = MockMvcBuilders
-                .standaloneSetup(UserController(userServiceMock))
-                .setControllerAdvice(CommonExceptionTranslator())
+        fun setUp(webApplicationContext: WebApplicationContext, restDocumentation: RestDocumentationContextProvider) {
+            this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
                 .build()
         }
 
@@ -516,26 +533,60 @@ internal class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("data.createdAt").value("2022-01-01 10:10:20"))
                 .andExpect(MockMvcResultMatchers.jsonPath("data.updatedAt").value(null))
                 .andExpect(MockMvcResultMatchers.jsonPath("data.deletedAt").value(null))
+                .andDo(
+                    MockMvcRestDocumentation.document(
+                        "users/create",
+                        Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
+                        Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+                        PayloadDocumentation.requestFields(
+                            PayloadDocumentation.fieldWithPath("username").type(JsonFieldType.STRING).description("로그인 아이디"),
+                            PayloadDocumentation.fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
+                            PayloadDocumentation.fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                            PayloadDocumentation.fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호"),
+                            PayloadDocumentation.fieldWithPath("name").type(JsonFieldType.STRING).description("회원 이름"),
+                            PayloadDocumentation.fieldWithPath("nickname").type(JsonFieldType.STRING).description("회원 별명"),
+                            PayloadDocumentation.fieldWithPath("authenticationNumber").type(JsonFieldType.STRING).description("인증번호"),
+                        ),
+                        PayloadDocumentation.responseFields(
+                            PayloadDocumentation.fieldWithPath("result").type(JsonFieldType.STRING).description("성공 여부"),
+                            PayloadDocumentation.fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("고유 아이디"),
+                            PayloadDocumentation.fieldWithPath("data.username").type(JsonFieldType.STRING).description("로그인 아이디"),
+                            PayloadDocumentation.fieldWithPath("data.email").type(JsonFieldType.STRING).description("이메일"),
+                            PayloadDocumentation.fieldWithPath("data.phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                            PayloadDocumentation.fieldWithPath("data.name").type(JsonFieldType.STRING).description("회원 이름"),
+                            PayloadDocumentation.fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("회원 별명"),
+                            PayloadDocumentation.fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("생성 날짜"),
+                            PayloadDocumentation.fieldWithPath("data.updatedAt").type(JsonFieldType.NULL).description("마지막 변경 날짜"),
+                            PayloadDocumentation.fieldWithPath("data.deletedAt").type(JsonFieldType.NULL).description("삭제 날짜"),
+                            PayloadDocumentation.fieldWithPath("errorCode").type(JsonFieldType.NULL).description("에러 코드"),
+                            PayloadDocumentation.fieldWithPath("message").type(JsonFieldType.NULL).description("에러 메시지"),
+
+                        )
+                    )
+                )
 
             Mockito.verify(userServiceMock).createUser(request.toCommand())
         }
     }
 
     @Nested
+    @WebMvcTest(UserController::class)
+    @ExtendWith(RestDocumentationExtension::class)
     @DisplayName("비밀번호 변경 API를 호출할 때")
     inner class RequestResetPasswordApi {
 
         lateinit var mockMvc: MockMvc
+
+        @MockBean
         lateinit var userServiceMock: UserService
-        private val objectMapper = ObjectMapper()
+
+        @Autowired
+        lateinit var objectMapper: ObjectMapper
 
         @BeforeEach
-        fun setup() {
-            userServiceMock = Mockito.mock(UserService::class.java)
-
-            mockMvc = MockMvcBuilders
-                .standaloneSetup(UserController(userServiceMock))
-                .setControllerAdvice(CommonExceptionTranslator())
+        fun setUp(webApplicationContext: WebApplicationContext, restDocumentation: RestDocumentationContextProvider) {
+            this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
                 .build()
         }
 
@@ -672,6 +723,24 @@ internal class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andDo { MockMvcResultHandlers.print() }
                 .andExpect(MockMvcResultMatchers.jsonPath("result").value("SUCCESS"))
+                .andDo(
+                    MockMvcRestDocumentation.document(
+                        "users/reset-password",
+                        preprocessRequest(Preprocessors.prettyPrint()),
+                        Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+                        PayloadDocumentation.requestFields(
+                            PayloadDocumentation.fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                            PayloadDocumentation.fieldWithPath("newPassword").type(JsonFieldType.STRING).description("신규 비밀번호"),
+                            PayloadDocumentation.fieldWithPath("authenticationNumber").type(JsonFieldType.STRING).description("인증번호"),
+                        ),
+                        PayloadDocumentation.responseFields(
+                            PayloadDocumentation.fieldWithPath("result").type(JsonFieldType.STRING).description("성공 여부"),
+                            PayloadDocumentation.fieldWithPath("data").type(JsonFieldType.NULL).description("응답 데이터"),
+                            PayloadDocumentation.fieldWithPath("errorCode").type(JsonFieldType.NULL).description("에러 코드"),
+                            PayloadDocumentation.fieldWithPath("message").type(JsonFieldType.NULL).description("에러 메시지"),
+                        )
+                    )
+                )
 
             Mockito.verify(userServiceMock)
                 .resetPassword(request.toCommand())
@@ -679,20 +748,20 @@ internal class UserControllerTest {
     }
 
     @Nested
+    @WebMvcTest(UserController::class)
+    @ExtendWith(RestDocumentationExtension::class)
     @DisplayName("내 정보 조회를 호출할 때")
     inner class FindMyApi {
 
         lateinit var mockMvc: MockMvc
+
+        @MockBean
         lateinit var userServiceMock: UserService
-        private val objectMapper = ObjectMapper()
 
         @BeforeEach
-        fun setup() {
-            userServiceMock = Mockito.mock(UserService::class.java)
-
-            mockMvc = MockMvcBuilders
-                .standaloneSetup(UserController(userServiceMock))
-                .setControllerAdvice(CommonExceptionTranslator())
+        fun setUp(webApplicationContext: WebApplicationContext, restDocumentation: RestDocumentationContextProvider) {
+            this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
                 .build()
 
             val user: UserDetails = org.springframework.security.core.userdetails.User(
@@ -748,6 +817,7 @@ internal class UserControllerTest {
             // when, then
             mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/users/my")
+                    .header("Authorization", "bearer accessToken")
                     .principal(principal))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andDo { MockMvcResultHandlers.print() }
@@ -761,6 +831,29 @@ internal class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("data.createdAt").value(currentTime.toLocalString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("data.updatedAt").value(currentTime.toLocalString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("data.deletedAt").value(null))
+                .andDo(
+                    MockMvcRestDocumentation.document(
+                        "users/my",
+                        preprocessRequest(Preprocessors.prettyPrint()),
+                        Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+                        HeaderDocumentation.requestHeaders(headerWithName("Authorization").description("bearer token")),
+                        PayloadDocumentation.responseFields(
+                            PayloadDocumentation.fieldWithPath("result").type(JsonFieldType.STRING).description("성공 여부"),
+                            PayloadDocumentation.fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("고유 아이디"),
+                            PayloadDocumentation.fieldWithPath("data.username").type(JsonFieldType.STRING).description("로그인 아이디"),
+                            PayloadDocumentation.fieldWithPath("data.email").type(JsonFieldType.STRING).description("이메일"),
+                            PayloadDocumentation.fieldWithPath("data.phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                            PayloadDocumentation.fieldWithPath("data.name").type(JsonFieldType.STRING).description("회원 이름"),
+                            PayloadDocumentation.fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("회원 별명"),
+                            PayloadDocumentation.fieldWithPath("data.roles").type(JsonFieldType.ARRAY).description("회원 권한"),
+                            PayloadDocumentation.fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("생성 날짜"),
+                            PayloadDocumentation.fieldWithPath("data.updatedAt").type(JsonFieldType.STRING).description("마지막 변경 날짜"),
+                            PayloadDocumentation.fieldWithPath("data.deletedAt").type(JsonFieldType.NULL).description("삭제 날짜"),
+                            PayloadDocumentation.fieldWithPath("errorCode").type(JsonFieldType.NULL).description("에러 코드"),
+                            PayloadDocumentation.fieldWithPath("message").type(JsonFieldType.NULL).description("에러 메시지"),
+                        )
+                    )
+                )
         }
     }
 }

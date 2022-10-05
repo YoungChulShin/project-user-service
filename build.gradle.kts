@@ -44,6 +44,8 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.17.1")
     testImplementation("org.testcontainers:junit-jupiter:1.17.1")
     testImplementation("org.testcontainers:mysql:1.17.1")
+
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 }
 
 allOpen {
@@ -62,6 +64,8 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+val snippetsDir = file("build/generated-snippets")
 tasks.withType<Test> {
     useJUnitPlatform()
+    outputs.dir(snippetsDir)
 }

@@ -3,39 +3,54 @@ package com.project.myservice.presentation.user
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.project.myservice.application.user.UserAuthenticationService
 import com.project.myservice.domain.user.authentication.UserAuthenticationType
-import com.project.myservice.presentation.common.CommonExceptionTranslator
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.restdocs.RestDocumentationContextProvider
+import org.springframework.restdocs.RestDocumentationExtension
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.operation.preprocess.Preprocessors.*
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
 
 internal class UseAuthenticationControllerTest {
 
     @Nested
+    @WebMvcTest(UseAuthenticationController::class)
+    @ExtendWith(RestDocumentationExtension::class)
     @DisplayName("전화번호 인증을 요청할 때")
     inner class RequestAuthentication {
 
         lateinit var mockMvc: MockMvc
+
+        @MockBean
         lateinit var authenticationServiceMock: UserAuthenticationService
-        private val objectMapper = ObjectMapper()
+
+        @Autowired
+        lateinit var objectMapper: ObjectMapper
 
         @BeforeEach
-        fun setup() {
-            authenticationServiceMock = Mockito.mock(UserAuthenticationService::class.java)
-
-            mockMvc = MockMvcBuilders
-                .standaloneSetup(UseAuthenticationController(authenticationServiceMock))
-                .setControllerAdvice(CommonExceptionTranslator())
+        fun setUp(webApplicationContext: WebApplicationContext, restDocumentation: RestDocumentationContextProvider) {
+            this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
                 .build()
         }
 
@@ -118,24 +133,46 @@ internal class UseAuthenticationControllerTest {
                 .andExpect(jsonPath("data.type").value("CREATE_USER"))
                 .andExpect(jsonPath("data.phoneNumber").value(phoneNumber))
                 .andExpect(jsonPath("data.authenticationNumber").value(authenticationNumber))
+                .andDo(
+                    document(
+                        "userauthentication/request",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                            fieldWithPath("type").type(JsonFieldType.STRING).description("요청 타입"),
+                            fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                        ),
+                        responseFields(
+                            fieldWithPath("result").type(JsonFieldType.STRING).description("성공 여부"),
+                            fieldWithPath("data.type").type(JsonFieldType.STRING).description("요청 타입"),
+                            fieldWithPath("data.phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                            fieldWithPath("data.authenticationNumber").type(JsonFieldType.STRING).description("인증번호"),
+                            fieldWithPath("errorCode").type(JsonFieldType.NULL).description("에러 코드"),
+                            fieldWithPath("message").type(JsonFieldType.NULL).description("에러 메시지"),
+                        )
+                    )
+                )
         }
     }
 
     @Nested
+    @WebMvcTest(UseAuthenticationController::class)
+    @ExtendWith(RestDocumentationExtension::class)
     @DisplayName("전화번호 인증 검증을 요청할 때")
     inner class RequestCheckAuthentication {
 
         lateinit var mockMvc: MockMvc
+
+        @MockBean
         lateinit var authenticationServiceMock: UserAuthenticationService
-        private val objectMapper = ObjectMapper()
+
+        @Autowired
+        lateinit var objectMapper: ObjectMapper
 
         @BeforeEach
-        fun setup() {
-            authenticationServiceMock = Mockito.mock(UserAuthenticationService::class.java)
-
-            mockMvc = MockMvcBuilders
-                .standaloneSetup(UseAuthenticationController(authenticationServiceMock))
-                .setControllerAdvice(CommonExceptionTranslator())
+        fun setUp(webApplicationContext: WebApplicationContext, restDocumentation: RestDocumentationContextProvider) {
+            this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
                 .build()
         }
 
@@ -249,6 +286,26 @@ internal class UseAuthenticationControllerTest {
                 .andExpect(jsonPath("data.type").value("CREATE_USER"))
                 .andExpect(jsonPath("data.phoneNumber").value(phoneNumber))
                 .andExpect(jsonPath("data.authenticationNumber").value(authenticationNumber))
+                .andDo(
+                    document(
+                        "userauthentication/check",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                            fieldWithPath("type").type(JsonFieldType.STRING).description("요청 타입"),
+                            fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                            fieldWithPath("authenticationNumber").type(JsonFieldType.STRING).description("인증번호"),
+                        ),
+                        responseFields(
+                            fieldWithPath("result").type(JsonFieldType.STRING).description("성공 여부"),
+                            fieldWithPath("data.type").type(JsonFieldType.STRING).description("요청 타입"),
+                            fieldWithPath("data.phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                            fieldWithPath("data.authenticationNumber").type(JsonFieldType.STRING).description("인증번호"),
+                            fieldWithPath("errorCode").type(JsonFieldType.NULL).description("에러 코드"),
+                            fieldWithPath("message").type(JsonFieldType.NULL).description("에러 메시지"),
+                        )
+                    )
+                )
         }
     }
 }

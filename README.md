@@ -48,9 +48,12 @@
    {"status":"UP"}
    ```
 ### 기능 별 API 실행
+API 스펙
+- ['api-spec.html'](/apitest/api-spec.html)에서 확인 가능합니다. 
+
 API 실행
-- 'intelliJ IDEA'에서 실행: `apitest/gui_api_test.http` 파일을 이용해서 실행합니다.
-- 'command line'에서 실행: `apitest/cli_api_test.http` 파일을 이용해서 실행합니다. curl을 이용한 테스트를 합니다.
+- 'intelliJ IDEA'에서 실행: [`gui_api_test.http`](/apitest/gui_api_test.http) 파일을 이용해서 실행합니다.
+- 'command line'에서 실행: [`apitest/cli_api_test.http`](/apitest/cli_api_test.md) 파일을 이용해서 실행합니다. curl을 이용한 테스트를 합니다.
 
 코드 진입점
 
@@ -59,7 +62,7 @@ API 실행
 |전화번호 인증 요청|[POST] /api/v1/users/authentication/request|UseAuthenticationController#requestAuthentication|
 |전화번호 인증 검증|[POST] /api/v1/users/authentication/check|UseAuthenticationController#checkAuthentication|
 |회원가입 요청|[POST] /api/v1/users|UserController#createUser|
-|로그인|[POST] /api/v1/login|인증 필터: CustomAuthenticationFilter<br>인가 필터: CustomAuthorizationFilter<br>사용자 요청별 처리: UserLoginService#loadUserByUsername|
+|로그인|[POST] /api/v1/login<br>- [타입] USERNAME: 로그인 아이디<br>- [타입] PHONE_NUMBER: 전화번호<br>- [타입] EMAIL: 이메일|인증 필터: CustomAuthenticationFilter<br>인가 필터: CustomAuthorizationFilter<br>사용자 요청별 처리: UserLoginService#loadUserByUsername|
 |내 정보 조회|[GET] /api/v1/users/my|UserController#findMyInfo|
 |비밀번호 초기화|[POST] /api/v1/users/reset-password|UserController#resetPassword|
 
@@ -74,6 +77,7 @@ API 실행
 |jwt token|com.auth0:java-jwt||
 |querydsl|com.querydsl:querydsl-jpa|여러 Entity를 조회하는 query가 필요할 때 사용|
 |testcontainers|org.testcontainers:testcontainers<br>org.testcontainers:junit-jupiter<br>org.testcontainers:mysql|테스트 시, 컨테이너 기반으로 DB, Cache 동작|
+|api spec|org.springframework.restdocs:spring-restdocs-mockmvc|테스트 기반 API Spec. 작성|
 
 ## 기능 별 세부 구현 설명
 ### 전화번호 인증
