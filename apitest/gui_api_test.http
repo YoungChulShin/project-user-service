@@ -1,0 +1,72 @@
+### [회원가입] 인증번호 요청
+POST http://localhost:8080/api/v1/users/authentication/request
+Content-Type: application/json
+
+{
+  "type": "CREATE_USER",
+  "phoneNumber": "01055556666"
+}
+
+### [회원가입] 인증번호 검사 -> 응답받은 authenticationNumber 값을 변경합니다
+POST http://localhost:8080/api/v1/users/authentication/check
+Content-Type: application/json
+
+{
+  "type": "CREATE_USER",
+  "phoneNumber": "01055556666",
+  "authenticationNumber": "{authenticationNumber}"
+}
+
+### [회원가입] 요청 -> 응답받은 authenticationNumber 값을 변경합니다
+POST http://localhost:8080/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "myuser@myservice.com",
+  "phoneNumber": "01055556666",
+  "username": "myuser",
+  "password": "Secret123!@#",
+  "nickname": "mynickname",
+  "name": "myuser",
+  "authenticationNumber": "{authenticationNumber}"
+}
+
+### [로그인] 사용자 아이디
+POST http://localhost:8080/api/v1/login?loginType=USERNAME&loginId=myuser&password=Secret123!@#
+Content-Type: application/json
+
+### [로그인] 핸드폰 번호
+POST http://localhost:8080/api/v1/login?loginType=PHONE_NUMBER&loginId=01055556666&password=Secret123!@#
+Content-Type: application/json
+
+### [로그인] 이메일
+POST http://localhost:8080/api/v1/login?loginType=EMAIL&loginId=myuser@myservice.com&password=Secret123!@#
+Content-Type: application/json
+
+### [내 정보 조회] 요청 -> 응답받은 accessToken 값을 변경합니다
+GET http://localhost:8080/api/v1/users/my
+Content-Type: application/json
+Authorization: bearer {accessToken}
+
+### [비밀번호 초기화] 인증 요청
+POST http://localhost:8080/api/v1/users/authentication/request
+Content-Type: application/json
+
+{
+  "type": "RESET_PASSWORD",
+  "phoneNumber": "01055556666"
+}
+
+### [비밀번호 초기화] 요청 -> 응답받은 authenticationNumber 값을 변경합니다
+POST http://localhost:8080/api/v1/users/reset-password
+Content-Type: application/json
+
+{
+  "phoneNumber": "01055556666",
+  "newPassword": "NewSecret123!@#",
+  "authenticationNumber": "{authenticationNumber}"
+}
+
+### [비밀번호 초기화] 초기화된 번호로 로그인 - 핸드폰 번호
+POST http://localhost:8080/api/v1/login?loginType=PHONE_NUMBER&loginId=01055556666&password=NewSecret123!@#
+Content-Type: application/json
