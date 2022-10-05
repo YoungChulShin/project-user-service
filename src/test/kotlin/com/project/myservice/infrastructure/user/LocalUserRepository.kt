@@ -1,5 +1,8 @@
-package com.project.myservice.domain.user
+package com.project.myservice.infrastructure.user
 
+import com.project.myservice.domain.user.User
+import com.project.myservice.domain.user.UserDetailInfo
+import com.project.myservice.domain.user.UserRepository
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 

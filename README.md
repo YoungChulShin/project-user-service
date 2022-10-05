@@ -125,7 +125,16 @@ AccessToken 발급
 통합테스트
 - `testcontainers`를 이용합니다. 테스트가 동작할 때, MySQL, Redis 컨테이너를 구동하고 사용합니다. 
    - local db보다 시간이 느리다는 단점이 있는데, 상용환경과 최대한 일치하는 환경에서 테스트할 수 있는 장점이 있습니다.
-   
+
+### Repository 분리
+Repository를 아래 2개 기준으로 분리했습니다. 
+- 단일 Entity를 기준으로 조회하는 Repository
+- 여러 Entity가 Join되어 결과를 가져올 수 있는 Repository 
+
+프로젝트에는 UserRepository의 구현체인 DefaultUserRepository가 JpaUserRepository와 JpaUserQueryRepository를 주입 받습니다. 
+- JpaUserRepository: JpaRepository를 상속하는 일반적인 Entity 조회 Repository 입니다. 
+- JpaUserQueryRepository: queryDsl을 이용해서 여러 Entity를 조회하고, 조회에 필요한 칼럼만 가지는 값 객체를 응답하는 Repository 입니다.  
+
 ### Dummy로 구현한 기능
 아래 2개 기능은 Dummy로 동작합니다. 
 - SMS 전송: SmsNotificationSender

@@ -1,7 +1,7 @@
 package com.project.myservice.domain.user.authentication
 
 import com.project.myservice.common.exception.*
-import com.project.myservice.domain.user.LocalUserRepository
+import com.project.myservice.infrastructure.user.LocalUserRepository
 import com.project.myservice.domain.user.User
 import com.project.myservice.infrastructure.common.LocalCacheRepository
 import com.project.myservice.infrastructure.common.LocalNotificationSender
