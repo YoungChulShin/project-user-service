@@ -9,6 +9,7 @@ spring:
     hibernate:
       ddl-auto: none
     open-in-view: false
+    database: mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/myservice?serverTimeZone=UTC
@@ -17,6 +18,12 @@ spring:
   redis:
     host: localhost
     port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 application:
   user:

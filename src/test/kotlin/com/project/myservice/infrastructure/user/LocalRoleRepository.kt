@@ -1,5 +1,8 @@
-package com.project.myservice.domain.user
+package com.project.myservice.infrastructure.user
 
+import com.project.myservice.domain.user.Role
+import com.project.myservice.domain.user.RoleRepository
+import com.project.myservice.domain.user.RoleType
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 

@@ -4,6 +4,8 @@ import com.project.myservice.common.exception.BaseException
 import com.project.myservice.common.exception.InvalidParameterException
 import com.project.myservice.common.exception.UserNotFoundException
 import com.project.myservice.domain.user.*
+import com.project.myservice.infrastructure.user.LocalRoleRepository
+import com.project.myservice.infrastructure.user.LocalUserRepository
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.Test

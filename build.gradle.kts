@@ -23,6 +23,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     implementation("com.auth0:java-jwt:4.0.0")
 
@@ -39,6 +40,12 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+
+    testImplementation("org.testcontainers:testcontainers:1.17.1")
+    testImplementation("org.testcontainers:junit-jupiter:1.17.1")
+    testImplementation("org.testcontainers:mysql:1.17.1")
+
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 }
 
 allOpen {
@@ -57,6 +64,8 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+val snippetsDir = file("build/generated-snippets")
 tasks.withType<Test> {
     useJUnitPlatform()
+    outputs.dir(snippetsDir)
 }

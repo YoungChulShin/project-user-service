@@ -10,6 +10,8 @@ import com.project.myservice.domain.user.authentication.UserAuthenticationManage
 import com.project.myservice.domain.user.authentication.UserAuthenticationType
 import com.project.myservice.domain.user.event.UserCreatedEvent
 import com.project.myservice.domain.user.event.UserPasswordResetEvent
+import com.project.myservice.infrastructure.user.LocalRoleRepository
+import com.project.myservice.infrastructure.user.LocalUserRepository
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.BeforeEach

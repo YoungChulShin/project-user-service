@@ -1,0 +1,77 @@
+= MyService API
+notification-api-docs
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+=== 전화번호 인증 요청
+==== Request Sample
+include::{snippets}/userauthentication/request/http-request.adoc[]
+
+==== Request Field
+include::{snippets}/userauthentication/request/request-fields.adoc[]
+
+==== Response Sample
+include::{snippets}/userauthentication/request/http-response.adoc[]
+
+==== Response Body
+include::{snippets}/userauthentication/request/response-fields.adoc[]
+
+=== 전화번호 인증 검사
+==== Request Sample
+include::{snippets}/userauthentication/check/http-request.adoc[]
+
+==== Request Field
+include::{snippets}/userauthentication/check/request-fields.adoc[]
+
+==== Response Sample
+include::{snippets}/userauthentication/check/http-response.adoc[]
+
+==== Response Body
+include::{snippets}/userauthentication/check/response-fields.adoc[]
+
+=== 회원 가입 요청
+==== Request Sample
+include::{snippets}/users/create/http-request.adoc[]
+
+==== Request Field
+include::{snippets}/users/create/request-fields.adoc[]
+
+==== Response Sample
+include::{snippets}/users/create/http-response.adoc[]
+
+==== Response Body
+include::{snippets}/users/create/response-fields.adoc[]
+
+=== 내 정보 조회
+==== Request Sample
+include::{snippets}/users/my/http-request.adoc[]
+
+==== Request Header
+include::{snippets}/users/my/request-headers.adoc[]
+
+==== Response Sample
+include::{snippets}/users/my/http-response.adoc[]
+
+==== Response Body
+include::{snippets}/users/my/response-fields.adoc[]
+
+=== 비밀번호 초기화
+==== Request Sample
+include::{snippets}/users/reset-password/http-request.adoc[]
+
+==== Request Field
+include::{snippets}/users/reset-password/request-fields.adoc[]
+
+==== Response Sample
+include::{snippets}/users/reset-password/http-response.adoc[]
+
+==== Response Body
+include::{snippets}/users/reset-password/response-fields.adoc[]
