@@ -23,7 +23,7 @@
    ```
 2. 프로그램 빌드
    ```
-   // 테스트 포함 빌드 (통합 테스트가 포함되어 있어서 실행이 조금 느립니다)
+   // 테스트 포함 빌드
    ./gradlew clean build
    
    // 테스트 제외 빌드
@@ -47,6 +47,7 @@
    ```
    {"status":"UP"}
    ```
+
 ### 기능 별 API 실행
 API 스펙
 - ['api-spec.html'](/apitest/api-spec.html)에서 확인 가능합니다. 
@@ -65,6 +66,17 @@ API 실행
 |로그인|[POST] /api/v1/login<br>- [타입] USERNAME: 로그인 아이디<br>- [타입] PHONE_NUMBER: 전화번호<br>- [타입] EMAIL: 이메일|인증 필터: CustomAuthenticationFilter<br>인가 필터: CustomAuthorizationFilter<br>사용자 요청별 처리: UserLoginService#loadUserByUsername|
 |내 정보 조회|[GET] /api/v1/users/my|UserController#findMyInfo|
 |비밀번호 초기화|[POST] /api/v1/users/reset-password|UserController#resetPassword|
+
+### DB 접속 정보
+접속 정보
+- host: localhost
+- port: 8080
+- db: myservice
+- username: svc-user
+- password: svc-password
+
+DB 초기화 스크립트: [init.sql](/src/main/resources/db/init.sql)
+
 
 ### 사용 기술
 |기능|라이브러리|기타|

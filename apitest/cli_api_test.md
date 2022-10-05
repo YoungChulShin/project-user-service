@@ -1,3 +1,7 @@
+### [전화번호 인증] 타입 정보
+- CREATE_USER: 회원 가입
+- RESET_PASSWORD: 비밀번호 초기화
+
 ### [회원가입] 인증번호 요청
 ```bash
 curl --location --request POST 'http://localhost:8080/api/v1/users/authentication/request' \
@@ -33,6 +37,11 @@ curl --location --request POST 'http://localhost:8080/api/v1/users' \
   "authenticationNumber": "{authenticationNumber}"
 }'
 ```
+
+### [로그인] Query Parameter 정보
+- loginType: 로그인 타입(USERNAME: 로그인 아이디, PHONE_NUMBER: 전화번호, EMAIL: 이메일)
+- loginId: 로그인 타입 별 로그인 아이디
+- password: 비밀번호
 
 ### [로그인] 사용자 아이디
 ```bash
