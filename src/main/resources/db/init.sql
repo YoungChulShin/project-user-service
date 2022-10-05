@@ -1,5 +1,5 @@
 -- DB 생성
-CREATE DATABASE `myservice` DEFAULT CHARACTER SET = `utf8mb4` DEFAULT COLLATE `utf8mb4_unicode_ci`;
+CREATE DATABASE IF NOT EXISTS `myservice` DEFAULT CHARACTER SET = `utf8mb4` DEFAULT COLLATE `utf8mb4_unicode_ci`;
 
 -- 사용자 생성
 CREATE USER 'svc-user'@'%' IDENTIFIED BY 'svc-password';
@@ -49,6 +49,16 @@ CREATE TABLE IF NOT EXISTS users
     UNIQUE idx_phone_number (phone_number)
     ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
+-- 어드민 사용자 추가 (비밀번호: Secret1323)
+INSERT INTO users(username, email, phone_number, password, name, nickname, created_at, updated_at, deleted_at)
+SELECT 'admin', 'admin@myservice.com', '01011112222', '$2a$10$IMj2tLz5UHw1mB66/a5TTOSKljS1bHYqLtgxC0qVGIl39iL7SRMsK', 'adminuser',
+       'adminuser', now(), now(), null;
+
+-- 테스트 사용자 추가 (비밀번호: Secret1323)
+INSERT INTO users(username, email, phone_number, password, name, nickname, created_at, updated_at, deleted_at)
+SELECT 'testuser', 'testuser@myservice.com', '01033334444', '$2a$10$IMj2tLz5UHw1mB66/a5TTOSKljS1bHYqLtgxC0qVGIl39iL7SRMsK', 'testuser',
+       'testuser', now(), now(), null;
+
 -- 회원의 권한 정보 테이블 생성
 CREATE TABLE IF NOT EXISTS user_roles
 (
@@ -56,3 +66,13 @@ CREATE TABLE IF NOT EXISTS user_roles
     role_id BIGINT UNSIGNED NOT NULL COMMENT '권한 ID',
     PRIMARY KEY (user_id, role_id)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- 어드민 사용자 권한 추가
+INSERT INTO user_roles (user_id, role_id)
+SELECT (SELECT id FROM users WHERE username = 'admin'),
+       (SELECT id FROM roles WHERE name = 'ROLE_ADMIN');
+
+-- 테스트 사용자 권한 추가
+INSERT INTO user_roles (user_id, role_id)
+SELECT (SELECT id FROM users WHERE username = 'testuser'),
+       (SELECT id FROM roles WHERE name = 'ROLE_USER');
